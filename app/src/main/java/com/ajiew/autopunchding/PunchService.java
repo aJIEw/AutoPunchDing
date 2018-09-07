@@ -5,6 +5,8 @@ import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
@@ -35,6 +37,9 @@ public class PunchService extends IntentService {
     private PunchType punchType;
     private PowerManager powerManager;
     private KeyguardManager keyguardManager;
+    private String punchPositionY;
+
+    Handler handler = new Handler(Looper.getMainLooper());
 
     public PunchService() {
         super("PunchService");
@@ -70,40 +75,40 @@ public class PunchService extends IntentService {
 
         // 输入 PIN 码解锁
         inputPinIfNeeded();
-        SystemClock.sleep(5000);
+        SystemClock.sleep(3000);
 
-        // 打开钉钉
+        showToast("打开钉钉");
         startAppLauncher(DD_PACKAGE_NAME);
-        SystemClock.sleep(5000);
+        SystemClock.sleep(10000);
 
-        // 点击中间菜单
+        showToast("点击中间菜单");
         clickXY("700", "2325");
         SystemClock.sleep(5000);
 
-        // 点击考勤打卡
+        showToast("点击考勤打卡");
         clickXY("540", "1800");
         SystemClock.sleep(10000);
 
-        // 点击打卡按钮
-        clickXY("700", "1550");
+        showToast("点击打卡");
+        clickXY("700", punchPositionY);
         SystemClock.sleep(5000);
 
-        // 点击拍照按钮
+        showToast("点击拍照");
         clickXY("710", "2280");
         SystemClock.sleep(8000);
 
-        // 点击 OK 按钮
+        showToast("点击 OK");
         clickXY("710", "2281");
         SystemClock.sleep(5000);
 
-        // 退出钉钉
+        showToast("退出钉钉");
         stopApp(DD_PACKAGE_NAME);
 
-        // 打卡应用本田
+        showToast("打卡完成！");
         startAppLauncher(getPackageName());
         SystemClock.sleep(3000);
 
-        // 发送打卡完成事件
+        // 更新 UI
         String currentTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA).format(new Date());
         EventBus.getDefault().post(new PunchFinishedEvent(punchType, currentTime));
         Log.d(this.getClass().getSimpleName(), "onHandleIntent: punch finished");
@@ -135,19 +140,23 @@ public class PunchService extends IntentService {
         } else if (dayOfWeek == Calendar.SATURDAY) {
             if (hourOfDay == 9 && minute == 55) {
                 punchType = PunchType.CLOCK_IN;
+                punchPositionY = "920";
                 return true;
             }
             if (hourOfDay == 17 && minute == 10) {
                 punchType = PunchType.CLOCK_OUT;
+                punchPositionY = "1550";
                 return true;
             }
         } else {
             if (hourOfDay == 8 && minute == 25) {
                 punchType = PunchType.CLOCK_IN;
+                punchPositionY = "920";
                 return true;
             }
             if (hourOfDay == 17 && minute == 10) {
                 punchType = PunchType.CLOCK_OUT;
+                punchPositionY = "1550";
                 return true;
             }
         }
@@ -259,4 +268,15 @@ public class PunchService extends IntentService {
         exec(cmd);
     }
 
+    /**
+     * 显示 Toast 消息
+     */
+    private void showToast(final String text) {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                ToastUtil.showToast(text);
+            }
+        });
+    }
 }
