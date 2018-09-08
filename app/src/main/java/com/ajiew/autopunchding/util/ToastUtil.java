@@ -1,6 +1,8 @@
-package com.ajiew.autopunchding;
+package com.ajiew.autopunchding.util;
 
 import android.widget.Toast;
+
+import com.ajiew.autopunchding.BaseApplication;
 
 public class ToastUtil {
 

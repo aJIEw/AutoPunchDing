@@ -31,6 +31,10 @@
             android:name=".PunchService"
             android:enabled="true"
             android:exported="false" />
+        <service
+            android:name=".ManualPunchService"
+            android:enabled="true"
+            android:exported="false" />
 
         <receiver
             android:name=".AutoStartReceiver"

@@ -8,6 +8,7 @@ public class AutoStartReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        context.startService(new Intent(context, PunchService.class));
+        Intent punchIntent = new Intent(context, PunchService.class);
+        context.startService(punchIntent);
     }
 }

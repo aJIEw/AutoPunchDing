@@ -14,25 +14,27 @@ import android.util.Log;
 
 import com.ajiew.autopunchding.event.PunchFinishedEvent;
 import com.ajiew.autopunchding.event.PunchType;
+import com.ajiew.autopunchding.util.ToastUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import static com.ajiew.autopunchding.util.AppUtil.clickXY;
+import static com.ajiew.autopunchding.util.AppUtil.close;
+import static com.ajiew.autopunchding.util.AppUtil.stopApp;
+import static com.ajiew.autopunchding.util.AppUtil.swipe;
+
 public class PunchService extends IntentService {
 
     /**
      * 钉钉包名
      */
-    private static final String DD_PACKAGE_NAME = "com.alibaba.android.rimet";
-
-    private OutputStream os;
+    public static final String DD_PACKAGE_NAME = "com.alibaba.android.rimet";
 
     private PunchType punchType;
     private PowerManager powerManager;
@@ -104,7 +106,6 @@ public class PunchService extends IntentService {
         showToast("退出钉钉");
         stopApp(DD_PACKAGE_NAME);
 
-        showToast("打卡完成！");
         startAppLauncher(getPackageName());
         SystemClock.sleep(3000);
 
@@ -113,15 +114,7 @@ public class PunchService extends IntentService {
         EventBus.getDefault().post(new PunchFinishedEvent(punchType, currentTime));
         Log.d(this.getClass().getSimpleName(), "onHandleIntent: punch finished");
 
-        // 关闭通道
-        try {
-            if (os != null) {
-                os.close();
-            }
-            os = null;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        close();
     }
 
     /**
@@ -198,74 +191,11 @@ public class PunchService extends IntentService {
     }
 
     /**
-     * 滑动屏幕
-     *
-     * @param x1
-     * @param y1
-     * @param x2
-     * @param y2
-     */
-    private void swipe(String x1, String y1, String x2, String y2) {
-        String cmd = String.format("input swipe %s %s %s %s \n", x1, y1, x2, y2);
-        exec(cmd);
-    }
-
-    /**
      * 启动应用
      */
     private void startAppLauncher(String packageName) {
         Intent intent = this.getPackageManager().getLaunchIntentForPackage(packageName);
         startActivity(intent);
-    }
-
-    /**
-     * 点击
-     *
-     * @param x
-     * @param y
-     */
-    public void clickXY(String x, String y) {
-        Log.d(this.getClass().getSimpleName(), "clickXY: " + x + ", " + y);
-        String cmd = String.format("input tap %s %s \n", x, y);
-        exec(cmd);
-        SystemClock.sleep(1000);
-    }
-
-    /**
-     * 执行ADB命令：input tap 125 340
-     *
-     * @param cmd adb 命令
-     */
-    public final void exec(String cmd) {
-        try {
-            if (os == null) {
-                os = Runtime.getRuntime().exec("su").getOutputStream();
-            }
-            os.write(cmd.getBytes());
-            os.flush();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * 强退应用
-     *
-     * @param packageName
-     */
-    private void stopApp(String packageName) {
-        String cmd = "am force-stop " + packageName + " \n";
-        exec(cmd);
-    }
-
-    /**
-     * 强退服务
-     *
-     * @param fullServiceName 完整的服务名，包含包名 e.g. package.name/service.name
-     */
-    private void stopService(String fullServiceName) {
-        String cmd = "adb shell am stopservice " + fullServiceName + " \n";
-        exec(cmd);
     }
 
     /**

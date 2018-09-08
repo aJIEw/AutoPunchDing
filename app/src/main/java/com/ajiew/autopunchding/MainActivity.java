@@ -15,8 +15,11 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.OutputStream;
+import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
+
+    public static final String EXTRA_PUNCH_TYPE = "punch_type";
 
     private TextView tvClockInTime;
 
@@ -41,7 +44,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void requestRoot(View view) {
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        requestRoot();
+    }
+
+    private void requestRoot() {
         String cmd = "input tap 200 200 \n";
         try {
             OutputStream os = Runtime.getRuntime().exec("su").getOutputStream();
@@ -51,6 +61,18 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 开始打卡点击事件
+     */
+    public void manualPunch(View view) {
+        Calendar now = Calendar.getInstance();
+        PunchType punchType = now.get(Calendar.HOUR_OF_DAY) <= 12 ?
+                PunchType.CLOCK_IN : PunchType.CLOCK_OUT;
+        Intent punchIntent = new Intent(this, ManualPunchService.class);
+        punchIntent.putExtra(EXTRA_PUNCH_TYPE, punchType);
+        startService(punchIntent);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
