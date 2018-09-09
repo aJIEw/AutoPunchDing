@@ -1,4 +1,4 @@
-package com.ajiew.autopunchding;
+package com.ajiew.autopunchding.service;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -6,8 +6,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
+import com.ajiew.autopunchding.MainActivity;
 import com.ajiew.autopunchding.event.PunchFinishedEvent;
 import com.ajiew.autopunchding.event.PunchType;
 import com.ajiew.autopunchding.util.AppUtil;
@@ -19,7 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import static com.ajiew.autopunchding.PunchService.DD_PACKAGE_NAME;
+import static com.ajiew.autopunchding.service.PunchService.DD_PACKAGE_NAME;
 import static com.ajiew.autopunchding.util.AppUtil.clickXY;
 import static com.ajiew.autopunchding.util.AppUtil.stopApp;
 
@@ -70,8 +70,7 @@ public class ManualPunchService extends IntentService {
         clickXY("710", "2281");
         SystemClock.sleep(5000);
 
-        showToast("退出钉钉");
-        stopApp(DD_PACKAGE_NAME);
+        startAppLauncher(getPackageName());
 
         // 更新 UI
         String currentTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA).format(new Date());
@@ -85,6 +84,7 @@ public class ManualPunchService extends IntentService {
      */
     private void startAppLauncher(String packageName) {
         Intent intent = this.getPackageManager().getLaunchIntentForPackage(packageName);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
     }
 

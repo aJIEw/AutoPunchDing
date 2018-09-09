@@ -23,21 +23,14 @@
         </activity>
 
         <service
-            android:name=".AutoRunService"
-            android:enabled="true"
-            android:exported="false"
-            android:process=":remote" />
-        <service
-            android:name=".PunchService"
+            android:name=".service.KeepRunningService"
             android:enabled="true"
             android:exported="false" />
-        <service
-            android:name=".ManualPunchService"
-            android:enabled="true"
-            android:exported="false" />
+        <service android:name=".service.PunchService" />
+        <service android:name=".service.ManualPunchService" />
 
         <receiver
-            android:name=".AutoStartReceiver"
+            android:name=".broadcast.AutoStartReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter>

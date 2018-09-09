@@ -9,6 +9,9 @@ import android.widget.Toast;
 
 import com.ajiew.autopunchding.event.PunchFinishedEvent;
 import com.ajiew.autopunchding.event.PunchType;
+import com.ajiew.autopunchding.service.KeepRunningService;
+import com.ajiew.autopunchding.service.ManualPunchService;
+import com.ajiew.autopunchding.service.PunchService;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -33,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         tvClockInTime = findViewById(R.id.tv_clock_in_time);
         tvClockOutTime = findViewById(R.id.tv_clock_out_time);
 
-        startService(new Intent(this, AutoRunService.class));
+        startService(new Intent(this, KeepRunningService.class));
     }
 
     @Override

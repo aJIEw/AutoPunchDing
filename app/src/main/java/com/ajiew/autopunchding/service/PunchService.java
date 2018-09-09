@@ -1,4 +1,4 @@
-package com.ajiew.autopunchding;
+package com.ajiew.autopunchding.service;
 
 import android.app.IntentService;
 import android.app.KeyguardManager;
@@ -61,7 +61,6 @@ public class PunchService extends IntentService {
      */
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-
         if (!timeForPunch()) {
             stopSelf();
             return;
@@ -103,11 +102,7 @@ public class PunchService extends IntentService {
         clickXY("710", "2281");
         SystemClock.sleep(5000);
 
-        showToast("退出钉钉");
-        stopApp(DD_PACKAGE_NAME);
-
         startAppLauncher(getPackageName());
-        SystemClock.sleep(3000);
 
         // 更新 UI
         String currentTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA).format(new Date());
@@ -115,6 +110,8 @@ public class PunchService extends IntentService {
         Log.d(this.getClass().getSimpleName(), "onHandleIntent: punch finished");
 
         close();
+
+        stopSelf();
     }
 
     /**
@@ -195,6 +192,7 @@ public class PunchService extends IntentService {
      */
     private void startAppLauncher(String packageName) {
         Intent intent = this.getPackageManager().getLaunchIntentForPackage(packageName);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
     }
 
